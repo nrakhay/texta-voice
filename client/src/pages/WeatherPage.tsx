@@ -1,5 +1,26 @@
 import { useRef, useEffect, useState } from "react";
 
+const DEFAULT_INSTRUCTIONS = `You are a specialized weather assistant. Your primary function is to:
+1. Provide current weather information and forecasts when asked
+2. Explain weather phenomena and meteorological concepts
+3. Give weather-related advice and recommendations
+4. Help interpret weather data and patterns
+
+Important guidelines:
+- Only respond to weather-related queries
+- If asked about non-weather topics, politely redirect to weather discussions
+- Use clear, concise language to explain weather concepts
+- When discussing forecasts, always clarify the time period and location
+- Provide practical advice related to weather conditions
+- If location is not specified, ask for it before providing weather information
+
+Do not:
+- Engage in non-weather related conversations
+- Provide advice outside of weather-related topics
+- Make definitive predictions beyond standard forecast windows
+
+Remember: You are strictly a weather assistant, focused on helping users understand and prepare for weather conditions.`;
+
 const WeatherPage = () => {
   const [isSessionActive, setIsSessionActive] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -45,9 +66,11 @@ const WeatherPage = () => {
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
-      const baseUrl = "https://api.openai.com/v1/realtime";
-      const model = "gpt-4o-realtime-preview-2024-12-17";
-      const sdpResponse = await fetch(`${baseUrl}?model=${model}`, {
+      const url = new URL("https://api.openai.com/v1/realtime");
+      url.searchParams.set("model", "gpt-4o-realtime-preview-2024-12-17");
+      url.searchParams.set("instructions", DEFAULT_INSTRUCTIONS);
+      url.searchParams.set("voice", "ash");
+      const sdpResponse = await fetch(url.toString(), {
         method: "POST",
         body: offer.sdp,
         headers: {
