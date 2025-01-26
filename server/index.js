@@ -3,6 +3,7 @@ const WebSocket = require("ws");
 const fs = require("fs");
 const express = require("express");
 const dotenv = require("dotenv");
+const cors = require("cors");
 const { randomUUID } = require("crypto");
 
 dotenv.config();
@@ -10,6 +11,8 @@ dotenv.config();
 // server setup:
 const app = express();
 const port = process.env.PORT;
+
+app.use(cors());
 
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
@@ -51,6 +54,23 @@ const handleMessage = (ws, message) => {
 
 app.get("/", (req, res) => {
   res.send("Server is running");
+});
+
+app.get("/realtime/session", async (req, res) => {
+  const r = await fetch("https://api.openai.com/v1/realtime/sessions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "gpt-4o-realtime-preview-2024-12-17",
+      voice: "verse",
+    }),
+  });
+  const data = await r.json();
+
+  res.send(data);
 });
 
 wss.on("connection", handleConnection);
