@@ -1,7 +1,9 @@
+import WeatherPage from "./pages/WeatherPage";
+
 function App() {
   return (
     <>
-      <h1>Hi there</h1>
+      <WeatherPage />
     </>
   );
 }
